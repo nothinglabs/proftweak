@@ -188,17 +188,17 @@ void displayProfileList(String profileToSelect)
 //initial app setup
 void setup() {
 
-  
+
   JSONObject settings = loadJSONObject("proftweak.json");
-  
+
   profileDir = settings.getString("profileFolder");
 
   JSONArray commonSettingsJS =  (settings.getJSONArray("commonSettings"));
-  
+
   for (int y = 0; y < commonSettingsJS.size(); y++)
   {  
     print((String)commonSettingsJS.getString(y));
-    commonSettings = append(commonSettings, (String)commonSettingsJS.getString(y));  
+    commonSettings = append(commonSettings, (String)commonSettingsJS.getString(y));
   }
 
   if (profileDir.equals(""))
@@ -209,14 +209,13 @@ void setup() {
     else if (platform == WINDOWS) {
       println("WINDOWS");
       profileDir = System.getProperty("user.home")+"/My Things/Profiles/";
-  
     }
     else if (platform == LINUX) {
       println("LINUX");
     }
   }
 
-   print(profileDir);
+  print(profileDir);
 
 
   size(667, windowHeight);
@@ -249,7 +248,7 @@ void setup() {
       if (platform == WINDOWS) pathDelim = "\\";
       requestedProfileName = args[args.length - 1]; 
       String fileEntities[] = split(requestedProfileName, pathDelim);
-      requestedProfileName = fileEntities[fileEntities.length - 2];      
+      requestedProfileName = fileEntities[fileEntities.length - 2];
     }
 
     catch(Exception e) {
@@ -269,10 +268,9 @@ void setup() {
   sdrBack.setLocalColorScheme(6);
 
 
-  /*GButton RefreshButton = new GButton(this, 514, 83, 85, 17, "Refresh List");
+  GButton RefreshButton = new GButton(this, 567, 83, 85, 17, "Refresh List");
    RefreshButton.tag = "RefreshButton";
-   */
-
+  
   SaveButton = new GButton(this, buttonX, 126, buttonWidth, 30, "Save Current Profile");
   SaveButton.tag = "SaveButton";
 
@@ -337,7 +335,6 @@ void setup() {
   MasterTextBoxArray = new ArrayList(); 
 
   if (setJSONPath()) parseAndRenderJSON();
-  
 }
 
 boolean setJSONPath()
@@ -800,10 +797,11 @@ public void handleButtonEvents(GButton button, GEvent event) {
       }
     }
 
-
     if (button.tag == "RefreshButton")
     {
-      displayProfileList("");
+      String currentProfileName = profileSelector.getSelectedText();
+      displayProfileList(currentProfileName);
+      showMessage("Profile List Refreshed", 3000);
     }
 
     if (button.tag == "showProfiles")
@@ -829,6 +827,7 @@ public void handleButtonEvents(GButton button, GEvent event) {
       if (button.tag == "SaveNewButton")
       {
 
+        println("saving new profile:");
         saveNameText = newProfileTextBox.getText(); 
         saveNameText = saveNameText.replace("\\", "");
         saveNameText = saveNameText.replace("/", "");
@@ -843,38 +842,48 @@ public void handleButtonEvents(GButton button, GEvent event) {
         saveNameText = saveNameText.replace("\"", "");
 
         newProfileTextBox.setText(saveNameText);
+        
+        println(saveNameText);
       }
 
       try {
-        File f = new File(profileDir + saveNameText); 
-        f.mkdir();
-        saveJSONObject(json, profileDir + saveNameText + "/miracle.json");
 
-
-        JCopy cp = new JCopy(); 
-        File f1 = new File(profileDir + profileSelector.getSelectedText() + "/end.gcode");
-        File f2 = new File(profileDir + saveNameText + "/end.gcode");       
-        cp.copyFile(f1, f2);
-
-        f1 = new File(profileDir + profileSelector.getSelectedText() + "/start.gcode");
-        f2 = new File(profileDir  + saveNameText +  "/start.gcode");       
-        cp.copyFile(f1, f2);
-
-        f1 = new File(profileDir + profileSelector.getSelectedText() + "/profile.json");
-        f2 = new File(profileDir + saveNameText + "/profile.json");       
-        cp.copyFile(f1, f2);
-
-        if (button.tag == "SaveNewButton")
-        {
-          displayProfileList(newProfileTextBox.getText());
-          newProfileTextBox.setText("");
+        if ((newProfileTextBox.getText().equals("") || newProfileTextBox.getText().equals(" ")) && button.tag == "SaveNewButton")
+        { 
+          G4P.showMessage(this, "Please enter a valid profile name.", "Uh oh", G4P.WARNING);
         }
+        else
+        {
+
+          File f = new File(profileDir + saveNameText); 
+          f.mkdir();
+          saveJSONObject(json, profileDir + saveNameText + "/miracle.json");
 
 
-        showMessage("Profile Saved", 3000);
+          JCopy cp = new JCopy(); 
+          File f1 = new File(profileDir + profileSelector.getSelectedText() + "/end.gcode");
+          File f2 = new File(profileDir + saveNameText + "/end.gcode");       
+          cp.copyFile(f1, f2);
+
+          f1 = new File(profileDir + profileSelector.getSelectedText() + "/start.gcode");
+          f2 = new File(profileDir  + saveNameText +  "/start.gcode");       
+          cp.copyFile(f1, f2);
+
+          f1 = new File(profileDir + profileSelector.getSelectedText() + "/profile.json");
+          f2 = new File(profileDir + saveNameText + "/profile.json");       
+          cp.copyFile(f1, f2);
+
+          if (button.tag == "SaveNewButton")
+          {
+            displayProfileList(newProfileTextBox.getText());
+            newProfileTextBox.setText("");
+            setJSONPath();
+          }
+          showMessage("Profile Saved", 3000);
+        }
       } 
       catch (Exception e) {
-        showMessage("Save Failed - probably missing files.", 3000);
+        showMessage("Save Failed.", 3000);
         G4P.showMessage(this, "Save Failed! Your original profile may have been missing a required file.", "Uh oh", G4P.WARNING);
       } 
       finally {
