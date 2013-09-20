@@ -328,13 +328,13 @@ public void setup() {
   ShowAllButton.tag = "ShowAllButton";
   ShowAllButton.setText("Show All Profile Settings");
 
-  GButton ShowDocs = new GButton(this, buttonX, 480, buttonWidth, 30, "Profile Reference (Makerbot.com)");
+  GButton ShowDocs = new GButton(this, buttonX, 480, buttonWidth, 30, "Profile Reference (makerbot.com)");
   ShowDocs.tag = "ShowDocs";
 
   GButton showProfiles = new GButton(this, buttonX, 530, buttonWidth, 30, "Open Profile Folder");
   showProfiles.tag = "showProfiles";
 
-  GButton nothingButton = new GButton(this, buttonX, 580, buttonWidth, 30, "Visit nothinglabs.com (docs)");
+  GButton nothingButton = new GButton(this, buttonX, 580, buttonWidth, 30, "Visit nothinglabs.com (project info)");
   nothingButton.tag = "nothingButton";
 
 
@@ -343,7 +343,7 @@ public void setup() {
   appTitle.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   appTitle.setLocalColorScheme(9);
 
-  GLabel appDesc = new GLabel(this, 385, 40, 300, 14, "A Makerware profile editor"); 
+  GLabel appDesc = new GLabel(this, 385, 40, 300, 14, "A MakerWare profile editor"); 
   appDesc.setFont(new Font("Dialog", Font.BOLD, 14));
   appDesc.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   appDesc.setLocalColorScheme(9);
