@@ -824,6 +824,11 @@ public void handleButtonEvents(GButton button, GEvent event) {
     {
       String currentProfileName = profileSelector.getSelectedText();
       displayProfileList(currentProfileName);
+      if (!profileSelector.getSelectedText().equals(currentProfileName))
+      {
+         if (setJSONPath()) parseAndRenderJSON(); 
+      }
+      
       showMessage("Profile List Refreshed", 3000);
     }
 
