@@ -25,17 +25,27 @@ DisableProgramGroupPage=yes
 OutputBaseFilename=proftweak_wininst
 Compression=lzma
 SolidCompression=yes
+ChangesAssociations=yes
+
+
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "jsonassoc"; Description: "Use ProfTweak to open .JSON files (edit profiles directly from MakerWare)"; GroupDescription: "File Associations"; Flags:
 
 [Files]
 Source: "D:\DATA\proftweak\application.windows32\proftweak.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\DATA\proftweak\application.windows32\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+[Registry]
+Root: HKCR; Subkey: ".json"; ValueType: string; ValueName: ""; ValueData: "json_auto_file"; Flags: uninsdeletevalue;  Tasks: jsonassoc
+Root: HKCR; Subkey: "json_auto_file"; ValueType: string; ValueName: ""; ValueData: "JSON File"; Flags: uninsdeletekey;  Tasks: jsonassoc
+Root: HKCR; Subkey: "json_auto_file\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\PROFTWEAK.EXE,0"; Tasks: jsonassoc
+Root: HKCR; Subkey: "json_auto_file\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PROFTWEAK.EXE"" ""%1""";  Tasks: jsonassoc
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
