@@ -42,6 +42,7 @@ int windowHeight = 720;
 boolean showall = false;
 boolean drawSelectBox = false;
 float selectBoxY;
+boolean unSavedChanges = false;
 
 String profileDir;
 String pathForCurrentProfile;
@@ -189,7 +190,21 @@ void displayProfileList(String profileToSelect)
 void setup() {
 
 
-  JSONObject settings = loadJSONObject("proftweak.json");
+  JSONObject settings = new JSONObject();
+
+try {
+    settings = loadJSONObject("proftweak.json");
+    }
+    catch(Exception e) {
+      if (badThingHappenedSoShuttingDown == false)
+      {
+        G4P.showMessage(this, "Looks like there's a formatting problem in proftweak.json - were you playing with stuff? (see the docs for tips)", "Uh oh", G4P.WARNING);
+        badThingHappenedSoShuttingDown = true;
+        exit();
+      }
+    } 
+    finally {
+    }
 
   profileDir = settings.getString("profileFolder");
 
@@ -218,7 +233,7 @@ void setup() {
   print(profileDir);
 
 
-  size(667, windowHeight);
+  size(669, windowHeight);
   frameRate(60);
   noSmooth();
   background(0);
@@ -234,8 +249,8 @@ void setup() {
   profileSelector.setLocalColorScheme(6);
 
   //status line
-  statusTitle = new GLabel(this, 398, 650, 260, 17, "");
-  statusTitle.setFont(new Font("Dialog", Font.BOLD, 15));
+  statusTitle = new GLabel(this, 388, 650, 280, 17, "");
+  statusTitle.setFont(new Font("Dialog", Font.BOLD, 14));
   statusTitle.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   statusTitle.setLocalColorScheme(7);
 
@@ -320,7 +335,7 @@ void setup() {
   appTitle.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   appTitle.setLocalColorScheme(9);
 
-  GLabel appDesc = new GLabel(this, 385, 40, 300, 14, "A MakerWare profile editor"); 
+  GLabel appDesc = new GLabel(this, 385, 40, 300, 14, "A MakerWare profile editor (v1.1)"); 
   appDesc.setFont(new Font("Dialog", Font.BOLD, 14));
   appDesc.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   appDesc.setLocalColorScheme(9);
@@ -339,6 +354,8 @@ void setup() {
 
 boolean setJSONPath()
 {
+  //we're trying to load a new file - so changes are being tossed
+  unSavedChanges = false; 
   try
   {
 
@@ -349,8 +366,11 @@ boolean setJSONPath()
     return (true);
   }
   catch(Exception e) {
-    showMessage("Profile Load FAILED", 9000);
-    G4P.showMessage(this, "Error: That profile doesn't seem valid (unable to open miracle.json).", "Uh oh", G4P.WARNING);
+    if (badThingHappenedSoShuttingDown == false)
+    {
+      showMessage("Profile Load FAILED", 9000);
+      G4P.showMessage(this, "Error: Invalid profile (missing miracle.json).  This can also be caused by your profile path not being set correctly.", "Uh oh", G4P.WARNING);
+    }
     return (false);
   } 
   finally {
@@ -418,10 +438,14 @@ void draw() {
   {
     frameRate(4);
   }
-
-  if ((millis() - statusTimer) > 0)
+  else
   {
-    statusTitle.setText("");
+    //only update status if we're active to save CPU load
+    if ((millis() - statusTimer) > 0)
+    {
+      statusTitle.setText("");
+      if (unSavedChanges == true) statusTitle.setText("Change Made (Remember To Save)");
+    }
   }
 }
 
@@ -548,6 +572,7 @@ public void handleTextEvents(GEditableTextControl textarea, GEvent event) {
 
   if (event == GEvent.CHANGED)
   {
+    if (textarea.tag != "newprofilename") unSavedChanges = true;
     JSONEntry entryBeingEditted = (JSONEntry)MasterVariableArray.get(Integer.parseInt(textarea.tag) - 1);
 
     println (textarea.getText());
@@ -649,8 +674,7 @@ Object[] filterArray(Object[] myNames)
 void ParseJSONObjectToMainArray(JSONObject JSObject)
 {    
 
-
-
+  
   indent = indent + 1;
 
   Set i = JSObject.keys();
@@ -787,6 +811,7 @@ public void handleButtonEvents(GButton button, GEvent event) {
     {
       try {
         saveJSONObject(json, pathForCurrentProfile);
+        unSavedChanges = false;
         showMessage("Profile Saved", 3000);
       } 
       catch (Exception e) {
@@ -831,7 +856,7 @@ public void handleButtonEvents(GButton button, GEvent event) {
 
       if (button.tag == "SaveNewButton")
       {
-
+        //unSavedChanges = false;
         println("saving new profile:");
         saveNameText = newProfileTextBox.getText(); 
         saveNameText = saveNameText.replace("\\", "");
@@ -859,7 +884,7 @@ public void handleButtonEvents(GButton button, GEvent event) {
         }
         else
         {
-
+          unSavedChanges = false;     
           File f = new File(profileDir + saveNameText); 
           f.mkdir();
           saveJSONObject(json, profileDir + saveNameText + "/miracle.json");
@@ -901,7 +926,7 @@ public void handleButtonEvents(GButton button, GEvent event) {
     {
       showall = !showall;  
       parseAndRenderJSON();
-      statusTitle.setText("");
+      showMessage("", 0);  //prevents "profile loaded" from showing
       if (showall == true)
       {
         ShowAllButton.setText("Show Only Common Profile Settings");
