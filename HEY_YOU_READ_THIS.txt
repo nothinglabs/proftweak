@@ -1,0 +1,11 @@
+The general info / docs on ProfTweak are at:
+
+http://nothinglabs.blogspot.com/2013/09/introducing-proftweak-makerware-profile.html
+
+If something isn't working for you - there's a decent chance it's addressed there.
+
+If things still don't work for you - feel free to bug me.
+
+-Rich Olson
+www.nothinglabs.com
+rich@nothinglabs.com
